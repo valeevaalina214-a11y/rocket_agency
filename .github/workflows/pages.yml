@@ -38,13 +38,13 @@ jobs:
 
       - name: Prepare Pages files
         run: |
-          touch dist/client/.nojekyll
-          test -f dist/client/index.html
+          touch out/.nojekyll
+          test -f out/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/client
+          path: out
 
   deploy:
     environment:
