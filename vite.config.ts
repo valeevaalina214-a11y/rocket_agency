@@ -1,27 +1,21 @@
 import vinext from "vinext";
 import { defineConfig } from "vite";
+import rsc from "@vitejs/plugin-rsc";
+import { cloudflare } from "@cloudflare/vite-plugin";
 
-export default defineConfig(async () => {
-  process.env.WRANGLER_WRITE_LOGS ??= "false";
-  process.env.WRANGLER_LOG_PATH ??= ".wrangler/logs";
-  process.env.MINIFLARE_REGISTRY_PATH ??= ".wrangler/registry";
-
-  const { cloudflare } = await import("@cloudflare/vite-plugin");
-
-  return {
-    server: {
-      host: "0.0.0.0",
-    },
-    plugins: [
-      vinext(),
-      cloudflare({
-        viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
-        inspectorPort: false,
-        config: {
-          main: "./worker/index.ts",
-          compatibility_flags: ["nodejs_compat"],
-        },
-      }),
-    ],
-  };
+export default defineConfig({
+  plugins: [
+    vinext(),
+    rsc({
+      entries: {
+        rsc: "virtual:vinext-rsc-entry",
+        ssr: "virtual:vinext-app-ssr-entry",
+        client: "virtual:vinext-app-browser-entry",
+      },
+    }),
+    cloudflare({
+      viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
+      inspectorPort: false,
+    }),
+  ],
 });
